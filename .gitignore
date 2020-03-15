@@ -1,0 +1,6 @@
+.trash/
+bin/
+obj/
+Debug/
+
+.vscode/
