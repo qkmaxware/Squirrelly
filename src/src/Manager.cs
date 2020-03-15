@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Dependency {
 
-public class DependencyManager {
+public class Manager {
 	public IGit Git {get; set;}
-	public string InstallPath {get; set;}
+	public string InstallPath {get; set;} = ".";
 	
 	private string MkTmpdir() {
 		var path = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
