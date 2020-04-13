@@ -3,11 +3,11 @@ using System;
 namespace Dependency {
 
 public class PackageInfo {
-	public Uri DownloadUrl;
-	public VersionConstraint Constraint;
+	public Uri DownloadUrl {get; set;}
+	public VersionConstraint Constraint {get; set;}
 	
-	public string Host {get;}
-	public string Package {get;}
+	public string Host {get; set;}
+	public string Package {get; set;}
 }
 
 }
