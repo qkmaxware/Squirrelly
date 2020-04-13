@@ -99,7 +99,7 @@ public class Manager {
 		if (!IsDownloaded(uri)) {
 			// Clone repo to temp directory
 			var dir = MkTmpdir();
-			Console.WriteLine("downloading " + uri.Package + " to " + storage + " after cloning to " + dir);
+			// Console.WriteLine("downloading " + uri.Package + " to " + storage + " after cloning to " + dir);
 			Git.Clone(uri.DownloadUrl, dir);
 
 			if (versionlock != null) {
