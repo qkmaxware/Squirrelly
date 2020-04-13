@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Dependency {
 
 public class Manager {
-	public IGit Git {get; set;}
+	public IGit Git {get; set;} = new LocalGitInstall();
 	public string InstallPath {get; set;} = ".";
 	
 	private string MkTmpdir() {
@@ -64,9 +64,11 @@ public class Manager {
 			// Async downloading
 			var task = Task.Run(() => {
 				string vlock = (versionlocks != null && versionlocks.ContainsKey(dep) ? versionlocks[dep] : null);
-				var path = Download(dep, vlock);
-				if (path != null) {
-					Resolve(manifest.LoadFromDirectory(path));
+				if (dep != null) {
+					var path = Download(dep, vlock);
+					if (path != null) {
+						Resolve(manifest.LoadFromDirectory(path));
+					}
 				}
 			});
 			tasks.Add(task);
@@ -88,12 +90,16 @@ public class Manager {
 		RmDir(DependencyInstallPath(uri));
 	}
 	
-	public string Download (PackageInfo uri, string versionlock = null) {
+	public string Download (PackageInfo uri, string versionlock = null) {	
+		if (uri == null)
+			return null;
+
 		var storage = DependencyInstallPath(uri);
 	
 		if (!IsDownloaded(uri)) {
 			// Clone repo to temp directory
 			var dir = MkTmpdir();
+			Console.WriteLine("downloading " + uri.Package + " to " + storage + " after cloning to " + dir);
 			Git.Clone(uri.DownloadUrl, dir);
 
 			if (versionlock != null) {
@@ -110,6 +116,8 @@ public class Manager {
 					} else {
 						Git.Checkout(dir, commit);
 					}
+				} else {
+					Git.Checkout(dir, "master"); // no version constraint, check out master
 				}
 			}
 			
@@ -126,11 +134,13 @@ public class Manager {
 
 			// Check that the downloaded one is compatible 
 			// Find commit matching version constraint
-			var contains = uri.Constraint.FindSatisfying(Git, storage).Contains(commit);
-			if (!contains) {
-				throw new System.Data.ConstraintException($"One or more packages have incompatible dependency versions");
+			if (uri.Constraint != null) {
+				var contains = uri.Constraint.FindSatisfying(Git, storage).Contains(commit);
+				if (!contains) {
+					throw new System.Data.ConstraintException($"One or more packages have incompatible dependency versions");
+				}
 			}
-			return null;
+			return null; // Null so we don't re-download it's dependencies
 		}
 	}
 }
